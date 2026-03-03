@@ -13,6 +13,7 @@
 import React from "react";
 import ProductItem from "./ProductItem";
 import apiClient from "@/lib/api";
+import PaginationSync from "./PaginationSync";
 
 interface ProductsProps {
   categorySlug: string | null;
@@ -36,7 +37,7 @@ const Products = async ({ categorySlug, searchParams }: ProductsProps) => {
   if (inStockChecked && !outOfStockChecked) {
     stockFilterParams = "&filters[inStock][$gt]=0";
   } else if (!inStockChecked && outOfStockChecked) {
-    stockFilterParams = "&filters[inStock][$eq]=0";
+    stockFilterParams = "&filters[inStock][$equals]=0";
   }
 
   let products = [];
@@ -50,13 +51,10 @@ const Products = async ({ categorySlug, searchParams }: ProductsProps) => {
     }
 
     // build the url before firing the request so we can inspect it in devtools
-    const url = `/api/products?filters[price][$lte]=${
-      searchParams?.price || 10000
-    }&filters[rating][$gte]=${
-      Number(searchParams?.rating) || 0
-    }${stockFilterParams}${
-      slug ? `&filters[category][$equals]=${encodeURIComponent(slug)}` : ""
-    }&sort=${searchParams?.sort || 'defaultSort'}&page=${page}`;
+    const url = `/api/products?filters[price][$lte]=${searchParams?.price || 10000
+      }&filters[rating][$gte]=${Number(searchParams?.rating) || 0
+      }${stockFilterParams}${slug ? `&filters[category][$equals]=${encodeURIComponent(slug)}` : ""
+      }&sort=${searchParams?.sort || 'defaultSort'}&page=${page}`;
 
     // debug output for developers
     console.debug('Products component fetching', url, 'slug=', slug);
@@ -76,17 +74,20 @@ const Products = async ({ categorySlug, searchParams }: ProductsProps) => {
   }
 
   return (
-    <div className="grid grid-cols-3 justify-items-center gap-x-2 gap-y-5 max-[1300px]:grid-cols-3 max-lg:grid-cols-2 max-[500px]:grid-cols-1">
-      {products.length > 0 ? (
-        products.map((product: any) => (
-          <ProductItem key={product.id} product={product} color="black" />
-        ))
-      ) : (
-        <h3 className="text-3xl mt-5 text-center w-full col-span-full max-[1000px]:text-2xl max-[500px]:text-lg">
-          No products found for specified query
-        </h3>
-      )}
-    </div>
+    <>
+      <PaginationSync hasMore={products.length >= 12} />
+      <div className="grid grid-cols-3 justify-items-center gap-x-2 gap-y-5 max-[1300px]:grid-cols-3 max-lg:grid-cols-2 max-[500px]:grid-cols-1">
+        {products.length > 0 ? (
+          products.map((product: any) => (
+            <ProductItem key={product.id} product={product} color="black" />
+          ))
+        ) : (
+          <h3 className="text-3xl mt-5 text-center w-full col-span-full max-[1000px]:text-2xl max-[500px]:text-lg">
+            No products found for specified query
+          </h3>
+        )}
+      </div>
+    </>
   );
 };
 
