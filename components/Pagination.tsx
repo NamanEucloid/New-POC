@@ -12,7 +12,7 @@ import React from "react";
 import posthog from "posthog-js";
 
 const Pagination = () => {
-  const { page, incrementPage, decrementPage } = usePaginationStore();
+  const { page, incrementPage, decrementPage, hasMore } = usePaginationStore();
 
   const handleNext = () => {
     posthog.capture("pagination_clicked", {
@@ -41,6 +41,7 @@ const Pagination = () => {
       <button
         className="join-item btn btn-lg bg-blue-500 text-white hover:bg-white hover:text-blue-500"
         onClick={handlePrevious}
+        disabled={page === 1}
       >
         «
       </button>
@@ -49,12 +50,14 @@ const Pagination = () => {
         Page {page}
       </button>
 
-      <button
-        className="join-item btn btn-lg bg-blue-500 text-white hover:bg-white hover:text-blue-500"
-        onClick={handleNext}
-      >
-        »
-      </button>
+      {hasMore && (
+        <button
+          className="join-item btn btn-lg bg-blue-500 text-white hover:bg-white hover:text-blue-500"
+          onClick={handleNext}
+        >
+          »
+        </button>
+      )}
     </div>
   );
 };
