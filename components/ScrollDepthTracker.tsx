@@ -1,0 +1,76 @@
+"use client";
+
+import { useEffect, useMemo, useRef } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import posthog from "posthog-js";
+
+const SCROLL_DEPTH_STEPS = [20, 40, 60, 80, 100];
+
+export default function ScrollDepthTracker() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const trackedDepthsRef = useRef<Set<number>>(new Set());
+
+  const routeKey = useMemo(() => {
+    const query = searchParams?.toString();
+    return query ? `${pathname}?${query}` : pathname;
+  }, [pathname, searchParams]);
+
+  useEffect(() => {
+    trackedDepthsRef.current = new Set();
+
+    const getScrollDepth = () => {
+      const documentHeight = document.documentElement.scrollHeight;
+      const viewportHeight = window.innerHeight;
+      const maxScrollable = documentHeight - viewportHeight;
+
+      if (maxScrollable <= 0) {
+        return 100;
+      }
+
+      return Math.min(
+        100,
+        Math.round((window.scrollY / maxScrollable) * 100)
+      );
+    };
+
+    const captureDepths = () => {
+      const currentDepth = getScrollDepth();
+
+      SCROLL_DEPTH_STEPS.forEach((depth) => {
+        if (
+          currentDepth >= depth &&
+          !trackedDepthsRef.current.has(depth)
+        ) {
+          trackedDepthsRef.current.add(depth);
+          posthog.capture("scroll_depth", {
+            scroll_depth_percentage: depth,
+            page_path: pathname,
+            page_query: searchParams?.toString() || "",
+            page_url: window.location.href,
+            page_title: document.title,
+          });
+        }
+      });
+    };
+
+    const handleScroll = () => {
+      captureDepths();
+    };
+
+    captureDepths();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+
+    const timeoutId = window.setTimeout(captureDepths, 300);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+      window.clearTimeout(timeoutId);
+    };
+  }, [pathname, routeKey, searchParams]);
+
+  return null;
+}

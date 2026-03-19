@@ -11,6 +11,7 @@ import Providers from "@/Providers";
 import SessionTimeoutWrapper from "@/components/SessionTimeoutWrapper";
 import Script from "next/script";
 import CartSyncClient from "@/components/CartSyncClient";
+import ScrollDepthTracker from "@/components/ScrollDepthTracker";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -62,6 +63,7 @@ export default async function RootLayout({
 
         <SessionProvider session={session}>
           <CartSyncClient />
+          <ScrollDepthTracker />
           <SessionTimeoutWrapper />
           <Header />
           <Providers>{children}</Providers>
