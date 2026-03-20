@@ -12,12 +12,16 @@ import React, { useEffect, useState } from "react";
 import { FaHouse } from "react-icons/fa6";
 import posthog from "posthog-js";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { getIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
+import { sanitize } from "@/lib/sanitize";
+import { formatCategoryName } from "@/utils/categoryFormating";
 
 const Breadcrumb = () => {
   const { data: session } = useSession();
   const [guestSessionId, setGuestSessionId] = useState<string | null>(null);
   const isLoggedIn = getIsLoggedInValue(session);
+  const pathname = usePathname();
 
   // Create guest session if user is not logged in
   useEffect(() => {
@@ -53,6 +57,37 @@ const Breadcrumb = () => {
     }, isLoggedIn));
   };
 
+  const getLastCrumb = () => {
+    if (pathname === "/offers") {
+      return {
+        label: "Offers",
+        href: "/offers",
+      };
+    }
+
+    if (pathname === "/shop") {
+      return {
+        label: "All products",
+        href: "/shop",
+      };
+    }
+
+    if (pathname.startsWith("/shop/")) {
+      const categorySlug = pathname.split("/").filter(Boolean)[1];
+
+      if (categorySlug) {
+        return {
+          label: sanitize(formatCategoryName(categorySlug)),
+          href: pathname,
+        };
+      }
+    }
+
+    return null;
+  };
+
+  const lastCrumb = getLastCrumb();
+
   return (
     <div className="text-lg breadcrumbs pb-10 py-5 max-sm:text-base">
       <ul>
@@ -75,16 +110,18 @@ const Breadcrumb = () => {
           </Link>
         </li>
 
-        <li>
-          <Link
-            href="/shop"
-            onClick={() =>
-              trackBreadcrumbClick("All products", "/shop", 3)
-            }
-          >
-            All products
-          </Link>
-        </li>
+        {lastCrumb ? (
+          <li>
+            <Link
+              href={lastCrumb.href}
+              onClick={() =>
+                trackBreadcrumbClick(lastCrumb.label, lastCrumb.href, 3)
+              }
+            >
+              {lastCrumb.label}
+            </Link>
+          </li>
+        ) : null}
       </ul>
     </div>
   );
