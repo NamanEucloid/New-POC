@@ -45,7 +45,7 @@ const ProductItem = ({
       <Link
         href={`/product/${product.slug}`}
         onClick={() => handleProductClick("image")}
-        className="relative w-full h-[250px] flex items-center justify-center bg-white"
+        className="relative flex h-[250px] w-full items-center justify-center overflow-hidden bg-white p-4"
       >
         {product.discountType && product.discountValue !== undefined && (
           <div className="absolute top-2 left-2 z-10 bg-blue-600 text-white px-2.5 py-1 rounded-full shadow-sm pointer-events-none">
@@ -54,25 +54,27 @@ const ProductItem = ({
             </p>
           </div>
         )}
-        <Image
-          src={
-            product.mainImage
-              ? product.mainImage.startsWith("http://") ||
-                product.mainImage.startsWith("https://")
-                ? product.mainImage
-                : `/${product.mainImage}`
-              : "/product_placeholder.jpg"
-          }
-          width="0"
-          height="0"
-          sizes="100vw"
-          className="w-full h-full object-contain"
-          alt={sanitize(product?.title) || "Product image"}
-          unoptimized={
-            product.mainImage?.startsWith("http://") ||
-            product.mainImage?.startsWith("https://")
-          }
-        />
+        <div className="relative flex h-full w-full items-center justify-center">
+          <Image
+            src={
+              product.mainImage
+                ? product.mainImage.startsWith("http://") ||
+                  product.mainImage.startsWith("https://")
+                  ? product.mainImage
+                  : `/${product.mainImage}`
+                : "/product_placeholder.jpg"
+            }
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+            className="object-contain p-2"
+            style={{ maxWidth: "88%", maxHeight: "88%", margin: "auto" }}
+            alt={sanitize(product?.title) || "Product image"}
+            unoptimized={
+              product.mainImage?.startsWith("http://") ||
+              product.mainImage?.startsWith("https://")
+            }
+          />
+        </div>
       </Link>
 
       {/* Title */}
