@@ -77,7 +77,7 @@ const Breadcrumb = () => {
       }
 
       return {
-        label: "All products",
+        label: "All Products",
         href: "/shop",
       };
     }

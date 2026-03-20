@@ -48,31 +48,37 @@ const SingleProductPage = async ({ params }: SingleProductPageProps) => {
     <div className="bg-white">
       <div className="max-w-screen-2xl mx-auto">
         <div className="flex justify-center gap-x-16 pt-10 max-lg:flex-col items-center gap-y-5 px-5">
-          <div>
-            <Image
-              src={
-                product?.mainImage
-                  ? product.mainImage.startsWith('http://') || product.mainImage.startsWith('https://')
-                    ? product.mainImage
-                    : `/${product.mainImage}`
-                  : "/product_placeholder.jpg"
-              }
-              width={500}
-              height={500}
-              alt="main image"
-              className="w-auto h-auto"
-              unoptimized={product?.mainImage?.startsWith('http://') || product?.mainImage?.startsWith('https://')}
-            />
+          <div className="w-full max-w-[560px]">
+            <div className="relative mx-auto flex h-[320px] w-full max-w-[560px] items-center justify-center overflow-hidden rounded-lg bg-white p-4 sm:h-[420px] lg:h-[500px]">
+              <Image
+                src={
+                  product?.mainImage
+                    ? product.mainImage.startsWith('http://') || product.mainImage.startsWith('https://')
+                      ? product.mainImage
+                      : `/${product.mainImage}`
+                    : "/product_placeholder.jpg"
+                }
+                fill
+                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 70vw, 560px"
+                alt="main image"
+                className="object-contain p-2"
+                unoptimized={product?.mainImage?.startsWith('http://') || product?.mainImage?.startsWith('https://')}
+              />
+            </div>
             <div className="flex justify-around mt-5 flex-wrap gap-y-1 max-[500px]:justify-center max-[500px]:gap-x-1">
               {images?.map((imageItem: ImageItem, key: number) => (
-                <Image
+                <div
                   key={imageItem.imageID + key}
-                  src={`/${imageItem.image}`}
-                  width={100}
-                  height={100}
-                  alt="laptop image"
-                  className="w-auto h-auto"
-                />
+                  className="relative h-24 w-24 overflow-hidden rounded-md bg-white p-2"
+                >
+                  <Image
+                    src={`/${imageItem.image}`}
+                    fill
+                    sizes="96px"
+                    alt="product thumbnail"
+                    className="object-contain"
+                  />
+                </div>
               ))}
             </div>
           </div>
