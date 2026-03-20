@@ -9,6 +9,7 @@
 
 import React from "react";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const Checkbox = ({
   text,
@@ -19,6 +20,8 @@ const Checkbox = ({
   stateValue: any;
   setStateValue: any;
 }) => {
+  const isLoggedIn = useIsLoggedInValue();
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
 
@@ -26,11 +29,11 @@ const Checkbox = ({
     setStateValue(checked);
 
     // 2️⃣ Analytics only
-    posthog.capture("filter_checkbox_toggled", {
+    posthog.capture("filter_checkbox_toggled", withIsLoggedIn({
       label: text,
       checked,
       component: "Checkbox",
-    });
+    }, isLoggedIn));
   };
 
   return (

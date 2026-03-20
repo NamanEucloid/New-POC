@@ -11,16 +11,18 @@ import { ProductInCart, useProductStore } from "@/app/_zustand/store";
 import React, { useState } from "react";
 import { FaPlus, FaMinus } from "react-icons/fa6";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const QuantityInputCart = ({ product }: { product: ProductInCart }) => {
   const [quantityCount, setQuantityCount] = useState<number>(product.amount);
   const { updateCartAmount, calculateTotals } = useProductStore();
+  const isLoggedIn = useIsLoggedInValue();
 
   const handleQuantityChange = (actionName: "plus" | "minus"): void => {
     if (actionName === "plus") {
       const newValue = quantityCount + 1;
 
-      posthog.capture("cart_quantity_changed", {
+      posthog.capture("cart_quantity_changed", withIsLoggedIn({
         action: "increment",
         from_quantity: quantityCount,
         to_quantity: newValue,
@@ -28,7 +30,7 @@ const QuantityInputCart = ({ product }: { product: ProductInCart }) => {
         product_name: product.title,
         price: product.price,
         component: "QuantityInputCart",
-      });
+      }, isLoggedIn));
 
       setQuantityCount(newValue);
       updateCartAmount(product.id, newValue);
@@ -36,7 +38,7 @@ const QuantityInputCart = ({ product }: { product: ProductInCart }) => {
     } else if (actionName === "minus" && quantityCount !== 1) {
       const newValue = quantityCount - 1;
 
-      posthog.capture("cart_quantity_changed", {
+      posthog.capture("cart_quantity_changed", withIsLoggedIn({
         action: "decrement",
         from_quantity: quantityCount,
         to_quantity: newValue,
@@ -44,7 +46,7 @@ const QuantityInputCart = ({ product }: { product: ProductInCart }) => {
         product_name: product.title,
         price: product.price,
         component: "QuantityInputCart",
-      });
+      }, isLoggedIn));
 
       setQuantityCount(newValue);
       updateCartAmount(product.id, newValue);

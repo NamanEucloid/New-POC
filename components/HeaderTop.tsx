@@ -13,30 +13,32 @@ import React from "react";
 import toast from "react-hot-toast";
 import { FaHeadphones, FaRegEnvelope, FaRegUser } from "react-icons/fa6";
 import posthog from "posthog-js";
+import { getIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const HeaderTop = () => {
   const { data: session }: any = useSession();
+  const isLoggedIn = getIsLoggedInValue(session);
 
   const handleLogout = () => {
-    posthog.capture("header_top_logout_clicked", {
+    posthog.capture("header_top_logout_clicked", withIsLoggedIn({
       component: "HeaderTop",
-    });
+    }, isLoggedIn));
 
     setTimeout(() => signOut(), 1000);
     toast.success("Logout successful!");
   };
 
   const trackAuthClick = (type: "login" | "register") => {
-    posthog.capture(`header_top_${type}_clicked`, {
+    posthog.capture(`header_top_${type}_clicked`, withIsLoggedIn({
       component: "HeaderTop",
-    });
+    }, isLoggedIn));
   };
 
   const trackContactClick = (type: "phone" | "email") => {
-    posthog.capture("header_top_contact_clicked", {
+    posthog.capture("header_top_contact_clicked", withIsLoggedIn({
       contact_type: type,
       component: "HeaderTop",
-    });
+    }, isLoggedIn));
   };
 
   return (

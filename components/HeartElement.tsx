@@ -12,15 +12,18 @@ import Link from "next/link";
 import React from "react";
 import { FaHeart } from "react-icons/fa6";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const HeartElement = ({ wishQuantity }: { wishQuantity: number }) => {
+  const isLoggedIn = useIsLoggedInValue();
+
   const handleWishlistClick = () => {
-    posthog.capture("GNB_interaction", {
+    posthog.capture("GNB_interaction", withIsLoggedIn({
       action: "wishlist_icon_clicked",
       wishlist_quantity: wishQuantity,
       destination: "/wishlist",
       component: "HeartElement",
-    });
+    }, isLoggedIn));
   };
 
   return (

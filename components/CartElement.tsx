@@ -12,17 +12,19 @@ import React from 'react'
 import { FaCartShopping } from 'react-icons/fa6'
 import { useProductStore } from "@/app/_zustand/store"
 import posthog from 'posthog-js'
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth"
 
 const CartElement = () => {
   const { allQuantity } = useProductStore()
+  const isLoggedIn = useIsLoggedInValue()
 
   const handleCartClick = () => {
-    posthog.capture('GNB_interaction', {
+    posthog.capture('GNB_interaction', withIsLoggedIn({
       action: "cart_icon_clicked",
       cart_quantity: allQuantity,
       component: 'CartElement',
       destination: '/cart',
-    })
+    }, isLoggedIn))
   }
 
   return (

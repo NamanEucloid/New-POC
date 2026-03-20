@@ -11,10 +11,12 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { sanitize } from "@/lib/sanitize";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const SearchInput = () => {
   const [searchInput, setSearchInput] = useState<string>("");
   const router = useRouter();
+  const isLoggedIn = useIsLoggedInValue();
 
   // function for modifying URL for searching products
   const searchProducts = (e: React.FormEvent<HTMLFormElement>) => {
@@ -23,13 +25,13 @@ const SearchInput = () => {
     const sanitizedSearch = sanitize(searchInput);
 
     // 🔹 Analytics
-    posthog.capture("GNB_interaction", {
+    posthog.capture("GNB_interaction", withIsLoggedIn({
       action: "search_performed",
       query: sanitizedSearch,
       query_length: sanitizedSearch.length,
       component: "SearchInput",
       source: "header",
-    });
+    }, isLoggedIn));
 
     router.push(`/search?search=${encodeURIComponent(sanitizedSearch)}`);
     setSearchInput("");

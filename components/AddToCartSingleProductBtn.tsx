@@ -11,12 +11,14 @@ import React from "react";
 import { useProductStore } from "@/app/_zustand/store";
 import toast from "react-hot-toast";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const AddToCartSingleProductBtn = ({
   product,
   quantityCount,
 }: SingleProductBtnProps) => {
   const { addToCart, calculateTotals } = useProductStore();
+  const isLoggedIn = useIsLoggedInValue();
 
   const handleAddToCart = () => {
     // 1️⃣ Business logic (unchanged)
@@ -37,14 +39,14 @@ const AddToCartSingleProductBtn = ({
     toast.success("Product added to the cart");
 
     // 2️⃣ Analytics (PostHog)
-    posthog.capture("add_to_cart", {
+    posthog.capture("add_to_cart", withIsLoggedIn({
       product_id: product?.id,
       product_name: product?.title,
       price: product?.price,
       quantity_added: quantityCount,
       value: product?.price * quantityCount,
       source: "single_product_page",
-    });
+    }, isLoggedIn));
   };
 
   return (

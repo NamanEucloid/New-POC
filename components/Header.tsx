@@ -21,18 +21,20 @@ import toast from "react-hot-toast";
 import { useWishlistStore } from "@/app/_zustand/wishlistStore";
 import apiClient from "@/lib/api";
 import posthog from "posthog-js";
+import { getIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const Header = () => {
   const { data: session } = useSession();
+  const isLoggedIn = getIsLoggedInValue(session);
   const pathname = usePathname();
   const { wishlist, setWishlist, wishQuantity } = useWishlistStore();
 
   const handleLogout = () => {
-    posthog.capture("GNB_interaction", {
+    posthog.capture("GNB_interaction", withIsLoggedIn({
       action: "header_logout_clicked",
       component: "Header",
       location: pathname.startsWith("/admin") ? "admin" : "user",
-    });
+    }, isLoggedIn));
 
     setTimeout(() => signOut(), 1000);
     toast.success("Logout successful!");
@@ -64,18 +66,18 @@ const Header = () => {
   }, [session?.user?.email, wishlist.length]);
 
   const trackLogoClick = (area: "user" | "admin") => {
-    posthog.capture("GNB_interaction", {
+    posthog.capture("GNB_interaction", withIsLoggedIn({
       action: "header_logo_clicked",
       area,
       component: "Header",
-    });
+    }, isLoggedIn));
   };
 
   const trackAdminMenuClick = (label: string) => {
-    posthog.capture("admin_menu_clicked", {
+    posthog.capture("admin_menu_clicked", withIsLoggedIn({
       label,
       component: "Header",
-    });
+    }, isLoggedIn));
   };
 
   return (

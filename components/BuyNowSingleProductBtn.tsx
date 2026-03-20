@@ -12,6 +12,7 @@ import React from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const BuyNowSingleProductBtn = ({
   product,
@@ -19,6 +20,7 @@ const BuyNowSingleProductBtn = ({
 }: SingleProductBtnProps) => {
   const router = useRouter();
   const { addToCart, calculateTotals } = useProductStore();
+  const isLoggedIn = useIsLoggedInValue();
 
   const handleAddToCart = () => {
     // 1️⃣ Business logic (unchanged)
@@ -36,20 +38,20 @@ const BuyNowSingleProductBtn = ({
     toast.success("Product added to the cart");
 
     // 2️⃣ Analytics — intent
-    posthog.capture("buy_now_clicked", {
+    posthog.capture("buy_now_clicked", withIsLoggedIn({
       product_id: product?.id,
       product_name: product?.title,
       price: product?.price,
       quantity: quantityCount,
       value: product?.price * quantityCount,
       source: "single_product_page",
-    });
+    }, isLoggedIn));
 
     // 3️⃣ Analytics — funnel step
-    posthog.capture("begin_checkout", {
+    posthog.capture("begin_checkout", withIsLoggedIn({
       trigger: "buy_now",
       cart_value: product?.price * quantityCount,
-    });
+    }, isLoggedIn));
 
     // 4️⃣ Redirect
     router.push("/checkout");

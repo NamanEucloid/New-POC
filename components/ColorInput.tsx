@@ -10,13 +10,16 @@
 import React from "react";
 import { FaCheck } from "react-icons/fa6";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const ColorInput = () => {
+  const isLoggedIn = useIsLoggedInValue();
+
   const handleColorClick = (color: string) => {
-    posthog.capture("color_selected", {
+    posthog.capture("color_selected", withIsLoggedIn({
       color,
       component: "ColorInput",
-    });
+    }, isLoggedIn));
   };
 
   return (

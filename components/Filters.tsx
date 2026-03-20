@@ -11,6 +11,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSortStore } from "@/app/_zustand/sortStore";
 import { usePaginationStore } from "@/app/_zustand/paginationStore";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const CATEGORY_OPTIONS = [
   { label: "Smart Phones", value: "Smart Phones" },
@@ -38,6 +39,7 @@ const Filters = () => {
   const pathname = usePathname();
   const { replace } = useRouter();
   const searchParams = useSearchParams();
+  const isLoggedIn = useIsLoggedInValue();
 
   const { page } = usePaginationStore();
   const { sortBy } = useSortStore();
@@ -133,11 +135,11 @@ const Filters = () => {
               priceFilter: { text: "price", value },
             });
 
-            posthog.capture("filter_changed", {
+            posthog.capture("filter_changed", withIsLoggedIn({
               filter_type: "price",
               value,
               component: "Filters",
-            });
+            }, isLoggedIn));
           }}
         />
         <span>{`Max price: $${inputCategory.priceFilter.value}`}</span>
@@ -154,11 +156,11 @@ const Filters = () => {
           onChange={(e) => {
             const value = e.target.value;
             setSelectedCategory(value);
-            posthog.capture("filter_changed", {
+            posthog.capture("filter_changed", withIsLoggedIn({
               filter_type: "category",
               value,
               component: "Filters",
-            });
+            }, isLoggedIn));
           }}
         >
           <option value="">All Categories</option>
@@ -191,11 +193,11 @@ const Filters = () => {
                   nonDiscounted: newValue ? { text: "nonDiscounted", isChecked: false } : inputCategory.nonDiscounted
                 });
 
-                posthog.capture("filter_changed", {
+                posthog.capture("filter_changed", withIsLoggedIn({
                   filter_type: "discounted",
                   value: newValue,
                   component: "Filters",
-                });
+                }, isLoggedIn));
               }}
               className="checkbox"
             />
@@ -220,11 +222,11 @@ const Filters = () => {
                   discounted: newValue ? { text: "discounted", isChecked: false } : inputCategory.discounted
                 });
 
-                posthog.capture("filter_changed", {
+                posthog.capture("filter_changed", withIsLoggedIn({
                   filter_type: "non_discounted",
                   value: newValue,
                   component: "Filters",
-                });
+                }, isLoggedIn));
               }}
               className="checkbox"
             />
@@ -254,11 +256,11 @@ const Filters = () => {
                   inStock: { text: "instock", isChecked: newValue },
                 });
 
-                posthog.capture("filter_changed", {
+                posthog.capture("filter_changed", withIsLoggedIn({
                   filter_type: "in_stock",
                   value: newValue,
                   component: "Filters",
-                });
+                }, isLoggedIn));
               }}
               className="checkbox"
             />
@@ -281,11 +283,11 @@ const Filters = () => {
                   outOfStock: { text: "outofstock", isChecked: newValue },
                 });
 
-                posthog.capture("filter_changed", {
+                posthog.capture("filter_changed", withIsLoggedIn({
                   filter_type: "out_of_stock",
                   value: newValue,
                   component: "Filters",
-                });
+                }, isLoggedIn));
               }}
               className="checkbox"
             />
@@ -315,11 +317,11 @@ const Filters = () => {
               ratingFilter: { text: "rating", value },
             });
 
-            posthog.capture("filter_changed", {
+            posthog.capture("filter_changed", withIsLoggedIn({
               filter_type: "rating",
               value,
               component: "Filters",
-            });
+            }, isLoggedIn));
           }}
           className="range range-info"
         />

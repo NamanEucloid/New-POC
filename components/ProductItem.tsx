@@ -13,6 +13,7 @@ import Link from "next/link";
 import posthog from "posthog-js";
 import { sanitize } from "@/lib/sanitize";
 import { PriceRenderer } from "@/components";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const ProductItem = ({
   product,
@@ -21,10 +22,12 @@ const ProductItem = ({
   product: Product;
   color: string;
 }) => {
+  const isLoggedIn = useIsLoggedInValue();
+
   const handleProductClick = (
     click_source: "image" | "title" | "cta"
   ) => {
-    posthog.capture("product_clicked", {
+    posthog.capture("product_clicked", withIsLoggedIn({
       product_id: product.id,
       product_slug: product.slug,
       product_name: product.title,
@@ -33,7 +36,7 @@ const ProductItem = ({
       click_source,
       source: "product_grid",
       component: "ProductItem",
-    });
+    }, isLoggedIn));
   };
 
   return (

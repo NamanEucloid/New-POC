@@ -10,28 +10,30 @@
 import { usePaginationStore } from "@/app/_zustand/paginationStore";
 import React from "react";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const Pagination = () => {
   const { page, incrementPage, decrementPage, hasMore } = usePaginationStore();
+  const isLoggedIn = useIsLoggedInValue();
 
   const handleNext = () => {
-    posthog.capture("pagination_clicked", {
+    posthog.capture("pagination_clicked", withIsLoggedIn({
       direction: "next",
       from_page: page,
       to_page: page + 1,
       component: "Pagination",
-    });
+    }, isLoggedIn));
 
     incrementPage();
   };
 
   const handlePrevious = () => {
-    posthog.capture("pagination_clicked", {
+    posthog.capture("pagination_clicked", withIsLoggedIn({
       direction: "previous",
       from_page: page,
       to_page: page - 1,
       component: "Pagination",
-    });
+    }, isLoggedIn));
 
     decrementPage();
   };

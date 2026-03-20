@@ -11,23 +11,26 @@ import Image from "next/image";
 import React, { useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const Hero = () => {
+  const isLoggedIn = useIsLoggedInValue();
+
   // Track hero impression once
   useEffect(() => {
-    posthog.capture("hero_viewed", {
+    posthog.capture("hero_viewed", withIsLoggedIn({
       component: "Hero",
-    });
-  }, []);
+    }, isLoggedIn));
+  }, [isLoggedIn]);
 
   const router = useRouter();
 
   const handleCtaClick = (cta: "buy_now" | "learn_more") => {
-    posthog.capture("hero_cta_clicked", {
+    posthog.capture("hero_cta_clicked", withIsLoggedIn({
       cta,
       component: "Hero",
-    });
-    router.push("https://new-poc.duckdns.org/product/smart-watch-demo");
+    }, isLoggedIn));
+    router.push("/product/smart-watch-demo");
   };
 
   return (

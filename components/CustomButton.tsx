@@ -9,6 +9,7 @@
 
 import React from "react";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 interface CustomButtonProps {
   paddingX: number;
@@ -27,14 +28,16 @@ const CustomButton = ({
   customWidth,
   textSize,
 }: CustomButtonProps) => {
+  const isLoggedIn = useIsLoggedInValue();
+
   const handleClick = () => {
-    posthog.capture("custom_button_clicked", {
+    posthog.capture("custom_button_clicked", withIsLoggedIn({
       label: text,
       button_type: buttonType,
       width: customWidth,
       text_size: textSize,
       component: "CustomButton",
-    });
+    }, isLoggedIn));
   };
 
   return (

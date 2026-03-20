@@ -10,9 +10,11 @@ import { useRouter } from "next/navigation";
 import apiClient from "@/lib/api";
 import { sanitize } from "@/lib/sanitize";
 import posthog from "posthog-js";
+import { getIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const CheckoutPage = () => {
   const { data: session } = useSession();
+  const isLoggedIn = getIsLoggedInValue(session);
   const [checkoutForm, setCheckoutForm] = useState({
     name: "",
     lastname: "",
@@ -146,12 +148,12 @@ const CheckoutPage = () => {
 
     // Capture checkout initiated (non-PII)
     try {
-      posthog.capture("checkout_initiated", {
+      posthog.capture("checkout_initiated", withIsLoggedIn({
         products_count: products.length,
         cart_value: total,
         currency: "USD",
         component: "CheckoutPage",
-      });
+      }, isLoggedIn));
     } catch (err) {
       // don't block purchase if analytics fails
       console.warn("PostHog capture failed (checkout_initiated):", err);
@@ -223,10 +225,10 @@ const CheckoutPage = () => {
             toast.error(errorData.details || errorData.error || "Duplicate order detected");
             // capture failure
             try {
-              posthog.capture("checkout_failed", {
+              posthog.capture("checkout_failed", withIsLoggedIn({
                 reason: "duplicate_order",
                 component: "CheckoutPage",
-              });
+              }, isLoggedIn));
             } catch (err) { }
             return; // Don't throw, just return to stop execution
           } else if (errorData.details && Array.isArray(errorData.details)) {
@@ -248,10 +250,10 @@ const CheckoutPage = () => {
 
         // capture generic failure
         try {
-          posthog.capture("checkout_failed", {
+          posthog.capture("checkout_failed", withIsLoggedIn({
             reason: `http_${response.status}`,
             component: "CheckoutPage",
-          });
+          }, isLoggedIn));
         } catch (err) { }
         return; // Stop execution instead of throwing
       }
@@ -293,7 +295,7 @@ const CheckoutPage = () => {
 
       // Capture purchase (non-PII — no address or personal fields)
       try {
-        posthog.capture("thank_you_page_final_step", {
+        posthog.capture("thank_you_page_final_step", withIsLoggedIn({
           order_id: orderId,
           total: total,
           currency: "USD",
@@ -304,7 +306,7 @@ const CheckoutPage = () => {
           })),
           user_id: userId || null,
           component: "CheckoutPage",
-        });
+        }, isLoggedIn));
       } catch (err) {
         console.warn("PostHog capture failed (purchase):", err);
       }
@@ -365,10 +367,10 @@ const CheckoutPage = () => {
 
       // capture failure with generic message if available
       try {
-        posthog.capture("checkout_failed", {
+        posthog.capture("checkout_failed", withIsLoggedIn({
           error: error?.message || String(error),
           component: "CheckoutPage",
-        });
+        }, isLoggedIn));
       } catch (err) { }
 
       // Handle server validation errors
@@ -456,11 +458,11 @@ const CheckoutPage = () => {
 
     // Track checkout page view (non-PII)
     try {
-      posthog.capture("checkout_viewed", {
+      posthog.capture("checkout_viewed", withIsLoggedIn({
         products_count: products.length,
         cart_value: total,
         component: "CheckoutPage",
-      });
+      }, isLoggedIn));
     } catch (err) {
       console.warn("PostHog capture failed (checkout_viewed):", err);
     }

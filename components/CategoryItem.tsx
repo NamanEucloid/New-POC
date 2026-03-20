@@ -10,6 +10,7 @@
 import Link from "next/link";
 import React, { type ReactNode } from "react";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 interface CategoryItemProps {
   children: ReactNode;
@@ -18,12 +19,14 @@ interface CategoryItemProps {
 }
 
 const CategoryItem = ({ title, children, href }: CategoryItemProps) => {
+  const isLoggedIn = useIsLoggedInValue();
+
   const handleCategoryClick = () => {
-    posthog.capture("category_clicked", {
+    posthog.capture("category_clicked", withIsLoggedIn({
       category_name: title,
       destination: href,
       component: "CategoryItem",
-    });
+    }, isLoggedIn));
   };
 
   // derive slug from the href path so we can also include it as a query

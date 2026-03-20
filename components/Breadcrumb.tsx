@@ -12,10 +12,12 @@ import React, { useEffect, useState } from "react";
 import { FaHouse } from "react-icons/fa6";
 import posthog from "posthog-js";
 import { useSession } from "next-auth/react";
+import { getIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const Breadcrumb = () => {
   const { data: session } = useSession();
   const [guestSessionId, setGuestSessionId] = useState<string | null>(null);
+  const isLoggedIn = getIsLoggedInValue(session);
 
   // Create guest session if user is not logged in
   useEffect(() => {
@@ -41,14 +43,14 @@ const Breadcrumb = () => {
 
     const userId = session?.user?.id ?? null;
 
-    posthog.capture("breadcrumb_clicked", {
+    posthog.capture("breadcrumb_clicked", withIsLoggedIn({
       label,
       destination,
       position,
       component: "Breadcrumb",
       sessionId: effectiveSessionId,
       userId,
-    });
+    }, isLoggedIn));
   };
 
   return (

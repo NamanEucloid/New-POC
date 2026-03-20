@@ -3,20 +3,23 @@
 import Link from "next/link";
 import React, { useEffect } from "react";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const ExploreOffersSection = () => {
+  const isLoggedIn = useIsLoggedInValue();
+
   useEffect(() => {
-    posthog.capture("explore_offers_section_viewed", {
+    posthog.capture("explore_offers_section_viewed", withIsLoggedIn({
       component: "ExploreOffersSection",
-    });
-  }, []);
+    }, isLoggedIn));
+  }, [isLoggedIn]);
 
   const handleCtaClick = () => {
-    posthog.capture("explore_offers_cta_clicked", {
+    posthog.capture("explore_offers_cta_clicked", withIsLoggedIn({
       cta: "view_all_deals",
       destination: "/offers",
       component: "ExploreOffersSection",
-    });
+    }, isLoggedIn));
   };
 
   return (

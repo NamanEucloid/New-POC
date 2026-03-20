@@ -10,6 +10,7 @@
 import React from "react";
 import { FaPlus, FaMinus } from "react-icons/fa6";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 interface QuantityInputProps {
   quantityCount: number;
@@ -20,27 +21,29 @@ const QuantityInput = ({
   quantityCount,
   setQuantityCount,
 }: QuantityInputProps) => {
+  const isLoggedIn = useIsLoggedInValue();
+
   const handleQuantityChange = (actionName: "plus" | "minus"): void => {
     if (actionName === "plus") {
       const newValue = quantityCount + 1;
 
-      posthog.capture("quantity_changed", {
+      posthog.capture("quantity_changed", withIsLoggedIn({
         action: "increment",
         from_quantity: quantityCount,
         to_quantity: newValue,
         component: "QuantityInput",
-      });
+      }, isLoggedIn));
 
       setQuantityCount(newValue);
     } else if (actionName === "minus" && quantityCount !== 1) {
       const newValue = quantityCount - 1;
 
-      posthog.capture("quantity_changed", {
+      posthog.capture("quantity_changed", withIsLoggedIn({
         action: "decrement",
         from_quantity: quantityCount,
         to_quantity: newValue,
         component: "QuantityInput",
-      });
+      }, isLoggedIn));
 
       setQuantityCount(newValue);
     }

@@ -13,9 +13,11 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import posthog from "posthog-js";
 import apiClient from "@/lib/api";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const Footer = () => {
   const [activeOffers, setActiveOffers] = useState<{id: string, name: string}[]>([]);
+  const isLoggedIn = useIsLoggedInValue();
 
   useEffect(() => {
     apiClient.get('/api/offers?mode=list')
@@ -33,12 +35,12 @@ const Footer = () => {
     href: string,
     section: string
   ) => {
-    posthog.capture("footer_link_clicked", {
+    posthog.capture("footer_link_clicked", withIsLoggedIn({
       label,
       destination: href,
       section,
       component: "Footer",
-    });
+    }, isLoggedIn));
   };
 
   return (

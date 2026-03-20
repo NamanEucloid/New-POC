@@ -12,20 +12,23 @@ import React, { useEffect } from "react";
 import posthog from "posthog-js";
 import { useFeatureFlagVariantKey } from 'posthog-js/react';
 import { useRouter } from 'next/navigation';
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const IntroducingSection = () => {
+  const isLoggedIn = useIsLoggedInValue();
+
   // Track section impression once
   useEffect(() => {
-    posthog.capture("introducing_section_viewed", {
+    posthog.capture("introducing_section_viewed", withIsLoggedIn({
       component: "IntroducingSection",
-    });
-  }, []);
+    }, isLoggedIn));
+  }, [isLoggedIn]);
 
   const variant = useFeatureFlagVariantKey('test1');
   const router = useRouter();
 
   const handleClick = () => {
-    posthog.capture('shop_now_clicked');
+    posthog.capture("shop_now_clicked", withIsLoggedIn(undefined, isLoggedIn));
     router.push('/shop');
   };
 

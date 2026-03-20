@@ -9,6 +9,7 @@
 
 import React, { useState } from "react";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 interface RangeProps {
   min: number;
@@ -20,17 +21,18 @@ interface RangeProps {
 const Range = ({ min, max, priceValue, setInputCategory }: RangeProps) => {
   const [currentRangeValue, setCurrentRangeValue] =
     useState<number>(priceValue);
+  const isLoggedIn = useIsLoggedInValue();
 
   const handleRange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const newValue = parseInt(e.target.value);
 
-    posthog.capture("price_range_changed", {
+    posthog.capture("price_range_changed", withIsLoggedIn({
       from_price: currentRangeValue,
       to_price: newValue,
       min,
       max,
       component: "Range",
-    });
+    }, isLoggedIn));
 
     setCurrentRangeValue(newValue);
   };

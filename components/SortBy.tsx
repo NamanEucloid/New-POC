@@ -10,18 +10,20 @@
 import React from "react";
 import { useSortStore } from "@/app/_zustand/sortStore";
 import posthog from "posthog-js";
+import { useIsLoggedInValue, withIsLoggedIn } from "@/lib/posthog-auth";
 
 const SortBy = () => {
   // getting values from Zustand sort store
   const { sortBy, changeSortBy } = useSortStore();
+  const isLoggedIn = useIsLoggedInValue();
 
   const handleSortChange = (newSort: string) => {
     if (newSort !== sortBy) {
-      posthog.capture("sort_changed", {
+      posthog.capture("sort_changed", withIsLoggedIn({
         from_sort: sortBy,
         to_sort: newSort,
         component: "SortBy",
-      });
+      }, isLoggedIn));
     }
 
     changeSortBy(newSort);
