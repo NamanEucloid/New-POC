@@ -15,7 +15,6 @@ import SearchInput from "./SearchInput";
 import Link from "next/link";
 import CartElement from "./CartElement";
 import NotificationBell from "./NotificationBell";
-import HeartElement from "./HeartElement";
 import { signOut, useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { useWishlistStore } from "@/app/_zustand/wishlistStore";
@@ -27,7 +26,7 @@ const Header = () => {
   const { data: session } = useSession();
   const isLoggedIn = getIsLoggedInValue(session);
   const pathname = usePathname();
-  const { wishlist, setWishlist, wishQuantity } = useWishlistStore();
+  const { wishlist, setWishlist } = useWishlistStore();
 
   const handleLogout = () => {
     posthog.capture("GNB_interaction", withIsLoggedIn({
@@ -101,7 +100,6 @@ const Header = () => {
 
           <div className="flex gap-x-10 items-center">
             <NotificationBell />
-            <HeartElement wishQuantity={wishQuantity} />
             <CartElement />
           </div>
         </div>
