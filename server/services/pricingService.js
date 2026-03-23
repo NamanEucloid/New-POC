@@ -54,11 +54,8 @@ const applyOffersToProducts = async (products) => {
 
   // 2. Iterate through products and calculate best discount
   return products.map(product => {
+    let bestOfferInfo = null;
     let bestDiscountedPrice = product.price; // Start with the original price
-    let hasValidOffer = false;
-    let appliedOfferName = null;
-    let appliedDiscountType = null;
-    let appliedDiscountValue = null;
 
     activeOffers.forEach((offer) => {
       // Check if offer applies to this product
@@ -67,7 +64,6 @@ const applyOffersToProducts = async (products) => {
       );
 
       if (appliesToProduct) {
-        hasValidOffer = true;
         const currentDiscountedPrice = calculateDiscountedPrice(
           product.price,
           offer.discountType,
@@ -77,21 +73,31 @@ const applyOffersToProducts = async (products) => {
         // Keep the lowest price if product matches multiple offers
         if (currentDiscountedPrice < bestDiscountedPrice) {
           bestDiscountedPrice = currentDiscountedPrice;
-          appliedOfferName = offer.name;
-          appliedDiscountType = offer.discountType;
-          appliedDiscountValue = offer.discountValue;
+          bestOfferInfo = {
+            offerName: offer.name,
+            discountType: offer.discountType,
+            discountValue: offer.discountValue
+          };
         }
       }
     });
 
-    return {
-      ...product,
-      discountedPrice: bestDiscountedPrice,
-      hasDiscount: hasValidOffer, // true if at least one valid offer applied
-      offerName: appliedOfferName,
-      discountType: appliedDiscountType,
-      discountValue: appliedDiscountValue,
-    };
+    if (bestOfferInfo) {
+      return {
+        ...product,
+        discountedPrice: bestDiscountedPrice,
+        hasDiscount: true,
+        offerName: bestOfferInfo.offerName,
+        discountType: bestOfferInfo.discountType,
+        discountValue: bestOfferInfo.discountValue,
+      };
+    } else {
+      return {
+        ...product,
+        discountedPrice: product.price,
+        hasDiscount: false,
+      };
+    }
   });
 };
 
